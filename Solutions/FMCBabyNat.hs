@@ -1,3 +1,6 @@
+{-# OPTIONS_GHC -Wno-unrecognised-pragmas #-}
+
+{-# HLINT ignore "Redundant bracket" #-}
 module FMCBabyNat where
 
 -- Do not alter this import!
@@ -46,18 +49,17 @@ pred (S n) = n
 even :: Nat -> Nat
 even O = S O
 even (S O) = O
-even (S (S n)) = even n -- Conserva a paridade no
+even (S (S n)) = even n
 
 odd :: Nat -> Nat
-odd n = isZero (even n) -- retorna o isZero do even de n, ou seja se even n for verdadeiro (S O), ele inverte, ou seja o odd é O;
+odd n = isZero (even n)
 
 -- This is called the dotminus or monus operator
 -- (also: proper subtraction, arithmetic subtraction, ...).
 -- It behaves like subtraction, except that it returns 0
 -- when "normal" subtraction would return a negative number.
--- separar por casos
-monus n O = n -- caso base de n - 0 = n
-monus O m = O -- de acordo com o enunciado (caso base)
+monus n O = n
+monus O m = O
 monus (S n) (S m) = monus n m
 
 (-*) :: Nat -> Nat -> Nat
@@ -65,7 +67,7 @@ monus (S n) (S m) = monus n m
 
 -- multiplication
 (*) :: Nat -> Nat -> Nat
-n * O = O -- caso base
+n * O = O
 n * m = n + (n * pred m)
 
 infixl 7 *
@@ -80,41 +82,51 @@ infix 8 ^
 
 -- quotient
 (/) :: Nat -> Nat -> Nat
-n / O = O
-O / m = O
-n / m =
-  case n -* S m of
+_ / O = undefined
+O / _ = O
+n / (S m) =
+  case n -* m of
     O -> O
-    rest -> S (rest / S m)
+    _ -> S ((n -* S m) / S m)
 
-infix 9 /
+infix 8 /
 
 -- remainder
 (%) :: Nat -> Nat -> Nat
-(%) = undefined
+_ % O = undefined
+n % m = n -* ((n / m) * m)
 
 -- divides
 -- just for a change, we start by defining the "symbolic" operator
 -- and then define `devides` as a synonym to it
 -- again, outputs: O means False, S O means True
 (|||) :: Nat -> Nat -> Nat
-(|||) = undefined
+O ||| _ = O
+n ||| m = isZero (n % m)
 
 -- x `absDiff` y = |x - y|
 -- (Careful here: this - is the actual minus operator we know from the integers!)
 absDiff :: Nat -> Nat -> Nat
-absDiff = undefined
+absDiff n m = (m -* n) + (n -* m)
 
 (|-|) :: Nat -> Nat -> Nat
 (|-|) = absDiff
 
 factorial :: Nat -> Nat
-factorial = undefined
+factorial O = one
+factorial n = (n * factorial (pred n))
 
 -- signum of a number (-1, 0, or 1)
 sg :: Nat -> Nat
-sg = undefined
+sg O = O
+sg (S n) = S O
 
 -- lo b a is the floor of the logarithm base b of a
 lo :: Nat -> Nat -> Nat
-lo = undefined
+lo O _ = undefined
+lo _ O = undefined
+lo (S O) _ = undefined
+lo n m =
+  case m / n of
+    O -> O
+    _ -> S (lo n (m / n))
